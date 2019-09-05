@@ -8,7 +8,7 @@ resource "aws_flow_log" "flow_log" {
   vpc_id = "${var.vpc_id}"
   traffic_type = "ALL"
   iam_role_arn = "${local.cloudwatch_enabled ? aws_iam_role.flow_log_role.0.arn : ""}"
-  log_destination = "${local.cloudwatch_enabled ? aws_cloudwatch_log_group.flow_log.0.arn : var.flow_log_s3}"
+  log_destination = "${local.cloudwatch_enabled ? aws_cloudwatch_log_group.flow_log.0.arn : aws_s3_bucket.flow_log_bucket.arn}"
   log_destination_type = "${local.cloudwatch_enabled ? "cloud-watch-logs" : "s3"}"
 }
 
@@ -45,7 +45,7 @@ resource "aws_s3_bucket" "flow_log_bucket" {
 
 
 resource "aws_s3_bucket_policy" "flow_log_bucket_policy" {
-  bucket = "${aws_s3_bucket.flow_log_bucket}"
-  policy = ""
+  bucket = "${aws_s3_bucket.flow_log_bucket.id}"
+  policy = "${data.aws_iam_policy_document.FlowLogS3BucketPolicy.json}"
 }
 
